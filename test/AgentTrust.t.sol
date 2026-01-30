@@ -10,7 +10,7 @@ import {AgentTrust} from "../src/AgentTrust.sol";
  */
 contract AgentTrustTest is Test {
     AgentTrust public agentTrust;
-    
+
     address public owner;
     address public user1;
     address public user2;
@@ -21,18 +21,9 @@ contract AgentTrustTest is Test {
     string public constant AGENT_SYMBOL = "ATRUST";
     string public constant METADATA_URI = "https://example.com/agent/1";
 
-    event AgentRegistered(
-        uint256 indexed agentId,
-        address indexed creator,
-        string metadataURI
-    );
+    event AgentRegistered(uint256 indexed agentId, address indexed creator, string metadataURI);
 
-    event RatingSubmitted(
-        uint256 indexed agentId,
-        address indexed rater,
-        uint8 rating,
-        uint256 newAverage
-    );
+    event RatingSubmitted(uint256 indexed agentId, address indexed rater, uint8 rating, uint256 newAverage);
 
     function setUp() public {
         owner = address(this);
@@ -65,8 +56,7 @@ contract AgentTrustTest is Test {
     function test_RegisterAgent_StoresCreator() public {
         uint256 agentId = agentTrust.registerAgent(agentOwner, METADATA_URI);
 
-        (address ownerAddr, address creator, string memory uri) = 
-            agentTrust.getAgentDetails(agentId);
+        (address ownerAddr, address creator, string memory uri) = agentTrust.getAgentDetails(agentId);
 
         assertEq(ownerAddr, agentOwner);
         assertEq(creator, owner);
@@ -95,8 +85,7 @@ contract AgentTrustTest is Test {
         vm.prank(user1);
         agentTrust.submitRating(agentId, 5);
 
-        (uint256 totalRatings, uint256 averageScore) = 
-            agentTrust.getReputationSummary(agentId);
+        (uint256 totalRatings, uint256 averageScore) = agentTrust.getReputationSummary(agentId);
 
         assertEq(totalRatings, 1);
         assertEq(averageScore, 500); // 5.00 * 100
@@ -127,8 +116,7 @@ contract AgentTrustTest is Test {
         vm.prank(user3);
         agentTrust.submitRating(agentId, 3);
 
-        (uint256 totalRatings, uint256 averageScore) = 
-            agentTrust.getReputationSummary(agentId);
+        (uint256 totalRatings, uint256 averageScore) = agentTrust.getReputationSummary(agentId);
 
         assertEq(totalRatings, 3);
         assertEq(averageScore, 400); // (5+4+3)/3 = 4.00 * 100 = 400
@@ -141,13 +129,7 @@ contract AgentTrustTest is Test {
         agentTrust.submitRating(agentId, 5);
 
         vm.prank(user1);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                AgentTrust.AlreadyRated.selector,
-                agentId,
-                user1
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(AgentTrust.AlreadyRated.selector, agentId, user1));
         agentTrust.submitRating(agentId, 4);
     }
 
@@ -155,12 +137,7 @@ contract AgentTrustTest is Test {
         uint256 agentId = agentTrust.registerAgent(agentOwner, METADATA_URI);
 
         vm.prank(agentOwner);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                AgentTrust.CannotRateOwnAgent.selector,
-                agentId
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(AgentTrust.CannotRateOwnAgent.selector, agentId));
         agentTrust.submitRating(agentId, 5);
     }
 
@@ -168,12 +145,7 @@ contract AgentTrustTest is Test {
         uint256 agentId = agentTrust.registerAgent(agentOwner, METADATA_URI);
 
         vm.prank(user1);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                AgentTrust.InvalidRating.selector,
-                0
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(AgentTrust.InvalidRating.selector, 0));
         agentTrust.submitRating(agentId, 0);
     }
 
@@ -181,23 +153,13 @@ contract AgentTrustTest is Test {
         uint256 agentId = agentTrust.registerAgent(agentOwner, METADATA_URI);
 
         vm.prank(user1);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                AgentTrust.InvalidRating.selector,
-                6
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(AgentTrust.InvalidRating.selector, 6));
         agentTrust.submitRating(agentId, 6);
     }
 
     function test_SubmitRating_RevertIfAgentNotFound() public {
         vm.prank(user1);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                AgentTrust.AgentNotFound.selector,
-                999
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(AgentTrust.AgentNotFound.selector, 999));
         agentTrust.submitRating(999, 5);
     }
 
@@ -211,8 +173,7 @@ contract AgentTrustTest is Test {
             agentTrust.submitRating(agentId, i);
         }
 
-        (uint256 totalRatings, uint256 averageScore) = 
-            agentTrust.getReputationSummary(agentId);
+        (uint256 totalRatings, uint256 averageScore) = agentTrust.getReputationSummary(agentId);
 
         assertEq(totalRatings, 5);
         assertEq(averageScore, 300); // (1+2+3+4+5)/5 = 3.00 * 100 = 300
@@ -223,8 +184,7 @@ contract AgentTrustTest is Test {
     function test_GetAgentDetails() public {
         uint256 agentId = agentTrust.registerAgent(agentOwner, METADATA_URI);
 
-        (address ownerAddr, address creator, string memory uri) = 
-            agentTrust.getAgentDetails(agentId);
+        (address ownerAddr, address creator, string memory uri) = agentTrust.getAgentDetails(agentId);
 
         assertEq(ownerAddr, agentOwner);
         assertEq(creator, owner);
@@ -232,20 +192,14 @@ contract AgentTrustTest is Test {
     }
 
     function test_GetAgentDetails_RevertIfAgentNotFound() public {
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                AgentTrust.AgentNotFound.selector,
-                999
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(AgentTrust.AgentNotFound.selector, 999));
         agentTrust.getAgentDetails(999);
     }
 
     function test_GetReputationSummary_NoRatings() public {
         uint256 agentId = agentTrust.registerAgent(agentOwner, METADATA_URI);
 
-        (uint256 totalRatings, uint256 averageScore) = 
-            agentTrust.getReputationSummary(agentId);
+        (uint256 totalRatings, uint256 averageScore) = agentTrust.getReputationSummary(agentId);
 
         assertEq(totalRatings, 0);
         assertEq(averageScore, 0);
@@ -259,20 +213,14 @@ contract AgentTrustTest is Test {
         vm.prank(user2);
         agentTrust.submitRating(agentId, 3);
 
-        (uint256 totalRatings, uint256 averageScore) = 
-            agentTrust.getReputationSummary(agentId);
+        (uint256 totalRatings, uint256 averageScore) = agentTrust.getReputationSummary(agentId);
 
         assertEq(totalRatings, 2);
         assertEq(averageScore, 400); // (5+3)/2 = 4.00 * 100 = 400
     }
 
     function test_GetReputationSummary_RevertIfAgentNotFound() public {
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                AgentTrust.AgentNotFound.selector,
-                999
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(AgentTrust.AgentNotFound.selector, 999));
         agentTrust.getReputationSummary(999);
     }
 
@@ -352,8 +300,7 @@ contract AgentTrustTest is Test {
         agentTrust.submitRating(agentId, 4);
 
         // (5+4+4)/3 = 4.33... * 100 = 433 (rounded down)
-        (uint256 totalRatings, uint256 averageScore) = 
-            agentTrust.getReputationSummary(agentId);
+        (uint256 totalRatings, uint256 averageScore) = agentTrust.getReputationSummary(agentId);
 
         assertEq(totalRatings, 3);
         assertEq(averageScore, 433); // 13/3 * 100 = 433.33... -> 433
@@ -368,4 +315,3 @@ contract AgentTrustTest is Test {
         assertEq(agentTrust.tokenURI(agentId), METADATA_URI);
     }
 }
-

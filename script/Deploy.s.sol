@@ -9,7 +9,7 @@ import {AgentTrust} from "../src/AgentTrust.sol";
  * @notice Deployment script for AgentTrust contract on Ethereum Sepolia testnet
  * @dev Usage:
  *      forge script script/Deploy.s.sol:DeployAgentTrust --rpc-url $SEPOLIA_RPC_URL --broadcast --verify -vvvv
- *      
+ *
  *      Or with private key:
  *      forge script script/Deploy.s.sol:DeployAgentTrust --rpc-url $SEPOLIA_RPC_URL --private-key $PRIVATE_KEY --broadcast --verify -vvvv
  */
@@ -44,16 +44,9 @@ contract DeployAgentTrust is Script {
         console.log("Total agents:", agentTrust.getTotalAgents());
 
         // Verify deployment
-        require(
-            agentTrust.owner() == deployer,
-            "Deployment verification failed: owner mismatch"
-        );
-        require(
-            agentTrust.getTotalAgents() == 0,
-            "Deployment verification failed: initial agent count should be 0"
-        );
+        require(agentTrust.owner() == deployer, "Deployment verification failed: owner mismatch");
+        require(agentTrust.getTotalAgents() == 0, "Deployment verification failed: initial agent count should be 0");
 
         console.log("Deployment successful!");
     }
 }
-
